@@ -1,21 +1,88 @@
 from django.shortcuts import render,get_object_or_404,redirect,reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.template.defaultfilters import slugify
 from django.urls import reverse_lazy
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView, FormMixin
 from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import Sum
-from .models import Product, Location, Movement
-from .forms import ProductForm, LocationForm, MovementForm
+from .models import Product, Location, Movement, User
+from .forms import ProductForm, LocationForm, MovementForm, CreateUserForm, UserForm
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .decorators import unauthenticated_user
+
+
+@unauthenticated_user
+def registerPage(request):
+    form = CreateUserForm()         
+
+    if request.method == 'POST':
+        form = CreateUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            user = form.cleaned_data.get('username')
+            messages.success(request, 'Account was created for' + user)
+
+            return redirect ('login')
+
+    context = {'form': form}
+    return render(request, 'register.html', context)
+
+@unauthenticated_user
+def loginPage(request):
+
+    if request.method == 'POST':
+       username = request.POST.get('username')
+       password = request.POST.get('password')
+
+       user = authenticate(request, username=username, password=password)
+
+       if user is not None:
+           login(request, user)
+           return redirect('inventory:index')
+       else: 
+           messages.info(request, 'Username OR password is incorrect')
+           
+
+    context = {}
+    return render(request, 'login.html', context)
+
+def logoutUser(request):
+    logout(request)
+    return redirect('inventory:login')
+
+
+class ManageListView(ListView):
+    model = User
+    template_name = 'manage.html'
+    context_object_name = 'users'
+    success_url = reverse_lazy('inventory:manage')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = UserForm()
+        return context
+
+    def __str__(self):
+        return self.get_context_data
+
+class CreateUser(CreateView):
+    model = User
+    fields=['username','email']
+    template_name = 'add_user.html'
+    success_url = reverse_lazy('inventory:manage')
 
 
 class ProductListView(ListView):
     model = Product
     template_name='all_products.html'
     context_object_name='products'
-
+ 
     def get_queryset(self):
         return Product.objects.all()
 
@@ -32,12 +99,14 @@ class ProductUpdateView(UpdateView):
     success_url = reverse_lazy('inventory:products')
 
 
-class LocationListView(ListView):
+class LocationListView(LoginRequiredMixin, ListView):
+    login_url = '/login/'
+    redirect_field_name = 'index'
     model = Location
     template_name = 'index.html'
     context_object_name = 'locations'
     success_url = reverse_lazy('inventory:index')
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = LocationForm()
@@ -153,7 +222,30 @@ def move_out(request,slug,location_slug):
     return render(request,'moveout.html',context)
 
 
+def delete_location(request,id):
+ 
+    target_product=Location.objects.get(pk=id)
+    target_product.delete()
 
+    return redirect('inventory:index')
+  
+def delete_view(request,id):
+    users= User.objects.get(id = id)
+    users.delete()
+    return redirect('inventory:manage')
 
+def ActivateUser(request,**kwargs):
+    u = User.objects.get(id = kwargs['ky'])
+    u.is_active = True
+    u.save()
+    messages.info(request,'User is Activated!')
+    return redirect('inventory:manage')
 
+def DeactivateUser(request,**kwargs):
+    u = User.objects.get(id = kwargs['ky'])
+    u.is_active = False
+    u.save()
+    messages.info(request,'User is Deactivate!')
+    return redirect('inventory:manage')
+    
     

@@ -1,6 +1,20 @@
+<style>
+  .hello-msg{
+    font-size: 18px;
+    color: rgb(20, 18, 18);
+    margin-right: 20px;
+  }
+</style>
+
+
 <!-- Image and text -->
 <nav class="navbar navbar-light bg-light">
   <a class="navbar-brand" href="/">
     Home
   </a>
+  {% if request.user.is_staff %}
+  <a class="navbar-brand" href="{% url 'inventory:manage' %}">Manage</a>
+  {% endif %}
+  <span  class="hello-msg">Welcome, {{request.user}} <a class="navbar-brand" href="{% url 'inventory:logout' %}">Logout</a></span>
+ 
 </nav>

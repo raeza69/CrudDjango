@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Users{% endblock title %}
+
+{% block content %}
+
+<h3>Manage Users
+    <button class="btn btn-info float-right btn-sm" data-toggle="modal" data-target="#addUser">Add User</button>
+    {% include 'add_user.html' %}
+    </h3>
+    <table class="table table-striped table-sm">
+        <thead class='text-center thead-dark'>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col">Email</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody class='text-center'>
+        {% for user in users %}
+          <tr>
+            <th scope="row">{{forloop.counter}}</th>
+            <td>{{user.username}}</td>
+            <td>{{user.email}}</td>
+            <td>
+              <a class="btn btn-success btn-sm" href="/useractive/{{user.id}}">Approve</a>
+              <a href="" class="btn btn-danger btn-sm">Reject</a>
+              <a href="/userdeactive/{{user.id}}" class="btn btn-danger btn-sm">Suspend</a>
+              <a href="/destroy/{{user.id}}" class="btn btn-danger btn-sm" >Delete</a>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+{% endblock content %}

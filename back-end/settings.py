@@ -1,6 +1,11 @@
 import os
-import dj_database_url
+
 from pathlib import Path
+import environ
+
+# Initialise environment variables
+env = environ.Env()
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -41,7 +46,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'backend.urls'
+ROOT_URLCONF = 'back-end.urls'
 
 TEMPLATES = [
     {
@@ -61,15 +66,23 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
+WSGI_APPLICATION = 'back-end.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {}
 
-DATABASES['default'] = dj_database_url.config(conn_max_age=600)
+DATABASES = {
+	'default': {
+	'ENGINE': 'django.db.backends.postgresql_psycopg2',
+	'NAME': 'inventorydb',
+    'USER': 'raeza1',
+    'PASSWORD': 'rr',
+	'HOST': 'localhost',
+	'PORT': '5432',
+	}
+}
 
 
 # Password validation
@@ -115,3 +128,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR/'static'
 ]
+
+DEFAULT_AUTO_FIELD='django.db.models.AutoField' 
+

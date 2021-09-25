@@ -20,12 +20,13 @@
     <tbody class='text-center'>
     {% for location in locations %}
       <tr>
-        <th scope="row">{{location.id}}</th>
+        <th scope="row">{{forloop.counter}}</th>
         <td>{{location.name}}</td>
         <td>
           {% if location.total_quantity > 0 %}{{location.total_quantity}}{% else %}0{% endif %}
         </td>
-        <td> <a class="btn btn-success btn-sm" href="{{location.get_absolute_url}}">Manage</a> </td>
+        <td> <a class="btn btn-success btn-sm" href="{{location.get_absolute_url}}">Manage</a> 
+            <a class="btn btn-danger btn-sm" href="delete/{{location.id}}" >Delete</a> </td>
       </tr>
     {% endfor %}
     </tbody>

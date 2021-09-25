@@ -1,0 +1,18 @@
+{% extends 'index.html' %}
+
+{% block title %}Delete{% endblock title %}
+
+{% block content %}
+
+<form action="" method="post" class="text-center">
+    {% csrf_token %}
+    <p>Are you sure to delete {{location.name}}?</p>
+    <div>
+        <button type="submit" class="btn btn-danger btn-sm">Confirm</button>
+        <a href="{{location.get_absolute_url}}" class="btn btn-secondary btn-sm">Go back</a>
+    </div>
+    
+</form>
+
+
+{% endblock content %}
